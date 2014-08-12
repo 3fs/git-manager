@@ -1,0 +1,88 @@
+usage() {
+    cat <<-EOF
+git manager ${GITMANAGER_VERSION}
+
+Usage: git manager release [<branch>]
+
+EOF
+}
+
+main() {
+    test -z "${1:-}" && local branch=$(git rev-parse --abbrev-ref HEAD) || local branch="$1"
+
+    test "$branch" == "master" && echo "Unable to release master, what are you trying to do?" && exit 1
+
+    # ensure all the changes are there
+    git fetch --all --prune --verbose --progress
+    # ensure local develop is as it should be
+    git checkout develop
+    git reset --hard origin/develop
+
+    local since=$(git log -1 --format="%at")
+
+    # merge develop into master
+    if test $branch == "develop"; then
+        # ensure master is up to date
+        git checkout master
+        git reset --hard origin/master
+
+        since=$(git log -1 --format="%at")
+        # @todo automate it :)
+        test $(git log --oneline develop.. | wc -l) -ne 0 && echo "there are changes in master, please merge them manually" && exit 1
+        #  fast-forward merge to master
+        git merge origin/develop
+
+        push_to master
+    # merge topic into develop
+    else
+        # ensure topic branch is as it should be
+        test $(git log --oneline $branch...origin/$branch | wc -l) -ne 0 && echo "$branch is not synched with origin/$branch, please review manually" && exit 1
+        git branch -D $branch || true
+        git checkout -b $branch origin/$branch
+        # ensure all changes from develop are in topic branch as well
+        git rebase develop
+        # ensure PR/MR is pointing to correct commits
+        git push -f origin $branch
+        # merge back into develop
+        git checkout develop
+        git merge --log --no-ff -m "Merge branch origin/$branch" $branch
+
+        push_to develop
+    fi
+}
+
+push_to() {
+    echo ""
+    echo "Following changes will be pushed to origin/$1:"
+    echo ""
+
+    local format="%C(auto)%h -%d %s %Cgreen(%cr) %C(bold blue)<%an>%Creset"
+    git --no-pager log --graph --pretty=format:"$format" --abbrev-commit --date=relative --since=$since
+
+    echo ""
+    echo ""
+
+    read -r -p "Continue? [y/N] " response
+    response=${response:-"N"}
+
+    if [ $response != "y" -a $response != "yes" ]
+    then
+        echo "Aborting ..."
+        exit 1
+    fi
+
+    case $1 in
+        master)
+            git push origin master
+            ;;
+        develop)
+            git push origin develop
+            git push origin :$branch
+            git branch -D $branch
+            ;;
+    esac
+
+    echo ""
+    echo "Branch $1 has been merged and pushed to origin/$1."
+    echo ""
+}

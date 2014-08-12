@@ -1,0 +1,39 @@
+usage() {
+    cat <<-EOF
+git manager ${GITMANAGER_VERSION}
+
+Usage: git manager topic <name> [<base>]
+
+EOF
+}
+
+main() {
+    test -z ${1#v} && usage && exit 1
+
+    local branch=${1}; shift
+    local base=${1:-origin/develop}
+
+    git show-ref --verify --quiet refs/heads/$branch && echo "Branch $branch already exists" && exit 1
+
+    git checkout -b $branch $base
+
+    cat <<-EOF
+
+A new branch $branch has been created using $base as base.
+You are currently on branch $branch.
+
+You may now start committing, make sure to regularly update this branch
+by running:
+
+  $ git manager update $branch
+
+Ensure daily snaphosts of the changes are stored in origin:
+
+  $ git manager publish $branch
+
+When done and want to merge upstream:
+
+  $ git manager release $branch
+
+EOF
+}

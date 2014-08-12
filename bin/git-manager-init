@@ -1,0 +1,60 @@
+usage() {
+    cat <<-EOF
+git manager ${GITMANAGER_VERSION}
+
+Usage: git manager init [<directory>] [<remote>]
+
+EOF
+}
+
+main() {
+    local directory="";
+    local remote="";
+
+    while test $# -ne 0; do
+        case $1 in
+            -h|--help)
+                usage
+                ;;
+            *)
+                if [ -z "$directory" ]; then
+                    directory=$1
+                else
+                    remote=$1
+                fi
+                ;;
+        esac
+        shift
+    done
+
+    test -z $directory && directory="."
+
+    if test $directory != "."; then
+        test -d $directory || mkdir -p $directory && cd $directory
+    fi
+
+    test -d .git && echo "git repository already exists" && exit 1
+
+    git init
+    git log -1 &> /dev/null || git commit --allow-empty -m "I am your manager!" &> /dev/null
+
+    if test "$remote" != ""; then
+        git remote add origin $remote
+        git push -uf origin master
+    fi
+
+    git checkout -b develop master &> /dev/null || true
+
+    if test "$remote" != ""; then
+        git push -uf origin develop
+    fi
+
+    local message="A new repository has been initialised"
+
+    test "$directory" == "." && message="$message in current directory" || message="$message in directory $directory"
+    test "$remote" != "" && message="$message and remote origin set to $remote"
+
+    echo ""
+    echo "$message."
+    echo ""
+}

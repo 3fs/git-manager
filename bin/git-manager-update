@@ -1,0 +1,38 @@
+usage() {
+    cat <<-EOF
+git manager ${GITMANAGER_VERSION}
+
+Usage: git manager update [<branch>]
+
+EOF
+}
+
+main() {
+    if test $# -eq 0; then
+        local branch=$(git rev-parse --abbrev-ref HEAD)
+    else
+        local branch=$1
+    fi
+
+    git fetch --all --prune --verbose --progress
+    git checkout $branch
+    git rebase
+
+    # rebase origin/develop onto current topic branch
+    test $branch == "master" || test $branch == "develop" || git rebase origin/develop
+
+    cat <<-EOF
+
+All the changes have been fetched from remote origin. Branch $branch
+has been synched with its tracking branch and origin/develop.
+
+You should publish the changes by invoking:
+
+  $ git manager publish -f $branch
+
+If you want to merge upstream:
+
+  $ git manager release $branch
+
+EOF
+}

@@ -1,0 +1,11 @@
+usage() {
+    echo "usage: git manager version"
+}
+
+main() {
+    if test $# -ne 0; then
+        usage
+        exit 1
+    fi
+    echo "git manager ${GITMANAGER_VERSION}"
+}

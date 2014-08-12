@@ -1,0 +1,52 @@
+#!/bin/sh
+
+set -u
+set -e
+
+# enable debug mode
+if [ "${DEBUG:-0}" -eq 1 ]; then
+    set -x
+fi
+
+export GITMANAGER_VERSION="0.1-dev"
+export GITMANAGER_DIR="$(dirname $0)"
+
+usage() {
+    cat <<-EOF
+git manager ${GITMANAGER_VERSION}
+
+Usage: git manager [COMMAND]
+
+Commands:
+
+    init        Initialise a new git repository.
+    topic       Create or checkout a topic branch.
+    update      Update current or given branch.
+    version     Print current version information.
+    help        Show this help.
+
+Try 'git manager <command> help' for details.
+
+EOF
+}
+
+main() {
+    if test $# -lt 1; then
+        usage
+        exit 1
+    fi
+
+    local command="${GITMANAGER_DIR}/git-manager-${1}"; shift
+
+    if [ ! -e "${command}" ]; then
+        usage
+        exit 1
+    fi
+
+    . "${command}"
+
+    # must be present in git-manager-[command]
+    main "$@"
+}
+
+main "$@"

@@ -1,0 +1,45 @@
+usage() {
+    cat <<-EOF
+git manager ${GITMANAGER_VERSION}
+
+Usage: git manager publish [OPTION]... [<branch>]
+
+Options:
+
+    -f, --force     Force push the changes.
+    -h, --help      Shows this help.
+
+EOF
+}
+
+main() {
+    local force=""
+    local branch=""
+    local msgPushed="pushed"
+
+    while test $# -ne 0; do
+        case $1 in
+            -h|--help)
+                usage
+                ;;
+            -f|--force)
+                force="-f"
+                msgPushed="force pushed"
+                ;;
+            *)
+                test "$branch" == "" && branch=$1
+                ;;
+        esac
+        shift
+    done
+
+    test -z "$branch" && branch=$(git rev-parse --abbrev-ref HEAD)
+
+    git checkout $branch
+    git push -u $force origin $branch
+    cat <<-EOF
+
+Branch $branch has been $msgPushed and upstream set to origin/$branch.
+
+EOF
+}
