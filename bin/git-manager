@@ -20,6 +20,8 @@ Usage: git manager [COMMAND]
 Commands:
 
     init        Initialise a new git repository.
+    publish     Published given or current branch to remote.
+    release     Merges given or current branch.
     topic       Create or checkout a topic branch.
     update      Update current or given branch.
     version     Print current version information.
