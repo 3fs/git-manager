@@ -36,7 +36,7 @@ main() {
     test -z "$branch" && branch=$(git rev-parse --abbrev-ref HEAD)
 
     git checkout $branch
-    git push -u $force origin $branch
+    git push -u $force origin $branch:$branch
     cat <<-EOF
 
 Branch $branch has been $msgPushed and upstream set to origin/$branch.
