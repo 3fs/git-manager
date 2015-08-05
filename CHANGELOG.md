@@ -1,3 +1,13 @@
+## 0.2.0 (unreleased)
+
+IMPROVEMENTS:
+
+  * release: enable releasing to a custom destination, defaults to `develop`
+
+MISC:
+
+  * fix install URI in README
+
 ## 0.1.0 (Sep 09, 2014)
 
   * initial release
