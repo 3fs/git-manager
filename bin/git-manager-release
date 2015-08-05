@@ -2,7 +2,7 @@ usage() {
     cat <<-EOF
 git manager ${GITMANAGER_VERSION}
 
-Usage: git manager release [<branch>]
+Usage: git manager release [<branch>] [<destination>]
 
 EOF
 }
@@ -12,11 +12,13 @@ main() {
 
     test "$branch" == "master" && echo "Unable to release master, what are you trying to do?" && exit 1
 
+    local destination=${2:-develop}
+
     # ensure all the changes are there
     git fetch --all --prune --verbose --progress
     # ensure local develop is as it should be
-    git checkout develop
-    git reset --hard origin/develop
+    git checkout $destination
+    git reset --hard origin/$destination
 
     local since=$(git log -1 --format="%at")
 
@@ -40,14 +42,14 @@ main() {
         git branch -D $branch || true
         git checkout -b $branch origin/$branch
         # ensure all changes from develop are in topic branch as well
-        git rebase develop
+        git rebase $destination
         # ensure PR/MR is pointing to correct commits
         git push -f origin $branch
-        # merge back into develop
-        git checkout develop
+        # merge back into $destination
+        git checkout $destination
         git merge --log --no-ff -m "Merge branch origin/$branch" $branch
 
-        push_to develop
+        push_to $destination
     fi
 }
 
