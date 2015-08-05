@@ -16,7 +16,7 @@ Installation
 For the time being, it is possible to install manger manually only.
 
 ```
-$ git clone https://github.com/davidkuridza/git-manager.git
+$ git clone https://github.com/3fs/git-manager.git
 $ cd git-manager
 $ make install
 ```
