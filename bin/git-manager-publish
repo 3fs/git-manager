@@ -7,21 +7,22 @@ Usage: git manager publish [OPTION]... [<branch>]
 Options:
 
     -f, --force     Force push the changes.
-    -h, --help      Shows this help.
 
 EOF
 }
 
 main() {
+    if [ "${1:-}" == "help" ]; then
+        usage
+        exit 0
+    fi
+
     local force=""
     local branch=""
     local msgPushed="pushed"
 
     while test $# -ne 0; do
         case $1 in
-            -h|--help)
-                usage
-                ;;
             -f|--force)
                 force="-f"
                 msgPushed="force pushed"

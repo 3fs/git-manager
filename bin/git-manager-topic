@@ -8,6 +8,11 @@ EOF
 }
 
 main() {
+    if [ "${1:-}" == "help" ]; then
+        usage
+        exit 0
+    fi
+
     test -z ${1#v} && usage && exit 1
 
     local branch=${1}; shift
