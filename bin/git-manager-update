@@ -8,6 +8,11 @@ EOF
 }
 
 main() {
+    if [ "${1:-}" == "help" ]; then
+        usage
+        exit 0
+    fi
+
     if test $# -eq 0; then
         local branch=$(git rev-parse --abbrev-ref HEAD)
     else

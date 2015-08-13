@@ -11,19 +11,18 @@ main() {
     local directory="";
     local remote="";
 
+    if [ "${1:-}" == "help" ]; then
+        usage
+        exit 0
+    fi
+
     while test $# -ne 0; do
-        case $1 in
-            -h|--help)
-                usage
-                ;;
-            *)
-                if [ -z "$directory" ]; then
-                    directory=$1
-                else
-                    remote=$1
-                fi
-                ;;
-        esac
+        if [ -z "$directory" ]; then
+            directory=$1
+        else
+            remote=$1
+        fi
+        ;;
         shift
     done
 

@@ -8,6 +8,11 @@ EOF
 }
 
 main() {
+    if [ "${1:-}" == "help" ]; then
+        usage
+        exit 0
+    fi
+
     test -z "${1:-}" && local branch=$(git rev-parse --abbrev-ref HEAD) || local branch="$1"
 
     test "$branch" == "master" && echo "Unable to release master, what are you trying to do?" && exit 1
