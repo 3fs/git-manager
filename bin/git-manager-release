@@ -15,7 +15,7 @@ main() {
 
     test -z "${1:-}" && local branch=$(git rev-parse --abbrev-ref HEAD) || local branch="$1"
 
-    test "$branch" == "master" && echo "Unable to release master, what are you trying to do?" && exit 1
+    test "$branch" == "master" && { echo "Unable to release master, what are you trying to do?"; exit 1; }
 
     local destination=${2:-develop}
 
@@ -78,16 +78,12 @@ push_to() {
         exit 1
     fi
 
-    case $1 in
-        master)
-            git push origin master
-            ;;
-        develop)
-            git push origin develop
-            git push origin :$branch
-            git branch -D $branch
-            ;;
-    esac
+    git push origin $1
+    if [ "$branch" != "develop" ] && [ "$branch" != "master" ]
+    then
+        git push origin :$branch
+        git branch -D $branch
+    fi
 
     echo ""
     echo "Branch $1 has been merged and pushed to origin/$1."
