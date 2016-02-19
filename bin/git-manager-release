@@ -52,7 +52,7 @@ main() {
         git push -f origin $branch
         # merge back into $destination
         git checkout $destination
-        git merge --log --no-ff -m "Merge branch origin/$branch" $branch
+        git merge $branch
 
         push_to $destination
     fi
